@@ -7,7 +7,7 @@ class FloorSpace (
     var roomId : String? = null,
     var name : String? = null,
     var widthMm : Int? = null,
-    var heightMm : Int? = null,
+    var depthMm : Int? = null,
     var productId : String? = null,
     var productName : String? = null,
     var colorVariant : String? = null,
