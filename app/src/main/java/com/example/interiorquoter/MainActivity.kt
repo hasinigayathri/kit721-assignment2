@@ -1,5 +1,6 @@
 package com.example.interiorquoter
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.ViewGroup
@@ -7,8 +8,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.interiorquoter.databinding.ActivityMainBinding
 import com.example.interiorquoter.databinding.MyHouseItemBinding
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 const val HOUSE_ID = "HOUSE_ID"
 
@@ -46,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         ui.myList.adapter = HouseAdapter(items)
 
         ui.btnAddHouse.setOnClickListener {
-            // TODO: open AddHouseActivity
+            startActivity(Intent(this, AddHouseActivity::class.java))
         }
 
         loadHouses()
