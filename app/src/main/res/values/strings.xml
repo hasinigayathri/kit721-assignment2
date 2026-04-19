@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Interior Quoter</string>
+    <string name="enter_hint">Add name or address to search</string>
 </resources>
