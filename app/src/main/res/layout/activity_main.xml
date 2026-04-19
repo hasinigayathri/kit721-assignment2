@@ -7,6 +7,14 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:title="Interior Quoter"
+        android:titleTextColor="@android:color/white" />
+
     <EditText
         android:id="@+id/txtSearch"
         android:layout_width="match_parent"

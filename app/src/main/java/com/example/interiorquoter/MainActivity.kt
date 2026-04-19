@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         ui = ActivityMainBinding.inflate(layoutInflater)
         setContentView(ui.root)
+        setSupportActionBar(ui.toolbar)
 
         ui.myList.layoutManager = LinearLayoutManager(this)
         ui.myList.adapter = HouseAdapter(items)
