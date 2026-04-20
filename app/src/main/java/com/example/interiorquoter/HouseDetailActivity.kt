@@ -60,6 +60,13 @@ class HouseDetailActivity : AppCompatActivity() {
                 intent.putExtra(ROOM_ID, room.id)
                 startActivity(intent)
             }
+            holder.itemView.setOnClickListener {
+                val intent = Intent(this@HouseDetailActivity, RoomDetailActivity::class.java)
+                intent.putExtra(ROOM_ID, room.id)
+                intent.putExtra(HOUSE_ID, houseId)
+                intent.putExtra("ROOM_NAME", room.name)
+                startActivity(intent)
+            }
         }
     }
 
