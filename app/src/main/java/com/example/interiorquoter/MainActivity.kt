@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.interiorquoter.databinding.ActivityMainBinding
@@ -35,6 +36,29 @@ class MainActivity : AppCompatActivity() {
             holder.ui.txtName.text = house.customerName
             holder.ui.txtAddress.text = house.address
             holder.ui.txtSummary.text = "Tap to view rooms"
+
+            holder.ui.btnDelete.setOnClickListener {
+                AlertDialog.Builder(holder.itemView.context)
+                    .setTitle("Delete Project")
+                    .setMessage("Are you sure you want to delete ${house.customerName}? This cannot be undone.")
+                    .setPositiveButton("Delete") { _, _ ->
+                        housesCollection.document(house.id!!).delete()
+                        houses.removeAt(position)
+                        notifyItemRemoved(position)
+                        if (houses.isEmpty()) {
+                            this@MainActivity.ui.lblStatus.text = "No houses yet\nTap '+ Add House' to create your first quote"
+                        } else {
+                            this@MainActivity.ui.lblStatus.text = "${houses.size} house(s)"
+                        }
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            }
+            holder.ui.btnEdit.setOnClickListener {
+                val intent = Intent(this@MainActivity, AddHouseActivity::class.java)
+                intent.putExtra(HOUSE_ID, house.id)
+                startActivity(intent)
+            }
         }
     }
 
@@ -51,6 +75,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, AddHouseActivity::class.java))
         }
 
+        loadHouses()
+    }
+
+    override fun onResume() {
+        super.onResume()
         loadHouses()
     }
 

@@ -11,14 +11,33 @@ class AddHouseActivity : AppCompatActivity() {
     private lateinit var ui: ActivityAddHouseBinding
     private val db = Firebase.firestore
     private val housesCollection get() = db.collection("houses")
+    private var houseId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ui = ActivityAddHouseBinding.inflate(layoutInflater)
         setContentView(ui.root)
+        setSupportActionBar(ui.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        title = "Add House"
+
+        houseId = intent.getStringExtra(HOUSE_ID)
+
+        if (houseId != null) {
+            title = "Edit House"
+            housesCollection.document(houseId!!).get().addOnSuccessListener { doc ->
+                val house = doc.toObject(House::class.java)
+                house?.let {
+                    ui.etName.setText(it.customerName)
+                    ui.etAddress.setText(it.address)
+                    ui.etSuburb.setText(it.suburb)
+                    ui.etPhone.setText(it.phone)
+                }
+            }
+        } else {
+            title = "Add House"
+        }
 
         ui.btnSave.setOnClickListener {
             val name = ui.etName.text.toString().trim()
@@ -42,8 +61,14 @@ class AddHouseActivity : AppCompatActivity() {
                 phone = phone
             )
 
-            housesCollection.add(house).addOnSuccessListener {
-                finish()
+            if (houseId != null) {
+                housesCollection.document(houseId!!).set(house).addOnSuccessListener {
+                    finish()
+                }
+            } else {
+                housesCollection.add(house).addOnSuccessListener {
+                    finish()
+                }
             }
         }
     }
