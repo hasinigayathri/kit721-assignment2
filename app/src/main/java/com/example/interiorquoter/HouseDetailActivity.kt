@@ -1,5 +1,6 @@
 package com.example.interiorquoter
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
@@ -53,6 +54,12 @@ class HouseDetailActivity : AppCompatActivity() {
                     .setNegativeButton("Cancel", null)
                     .show()
             }
+            holder.ui.btnEditRoom.setOnClickListener {
+                val intent = Intent(this@HouseDetailActivity, AddEditRoomActivity::class.java)
+                intent.putExtra(HOUSE_ID, houseId)
+                intent.putExtra(ROOM_ID, room.id)
+                startActivity(intent)
+            }
         }
     }
 
@@ -69,7 +76,9 @@ class HouseDetailActivity : AppCompatActivity() {
         loadRooms()
 
         ui.btnAddRoom.setOnClickListener {
-            // We'll wire this up when AddEditRoomActivity is created
+            val intent = Intent(this, AddEditRoomActivity::class.java)
+            intent.putExtra(HOUSE_ID, houseId)
+            startActivity(intent)
         }
     }
 
