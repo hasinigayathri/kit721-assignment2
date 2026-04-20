@@ -59,6 +59,11 @@ class MainActivity : AppCompatActivity() {
                 intent.putExtra(HOUSE_ID, house.id)
                 startActivity(intent)
             }
+            holder.itemView.setOnClickListener {
+                val intent = Intent(this@MainActivity, HouseDetailActivity::class.java)
+                intent.putExtra(HOUSE_ID, house.id)
+                startActivity(intent)
+            }
         }
     }
 
