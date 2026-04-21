@@ -60,6 +60,18 @@ class HouseDetailActivity : AppCompatActivity() {
                 intent.putExtra(ROOM_ID, room.id)
                 startActivity(intent)
             }
+
+            holder.itemView.setOnLongClickListener {
+                AlertDialog.Builder(holder.itemView.context)
+                    .setTitle("Duplicate Room")
+                    .setMessage("A copy of '${room.name}' will be created with all its windows and floor spaces.")
+                    .setPositiveButton("Duplicate") { _, _ ->
+                        duplicateRoom(room)
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+                true
+            }
             holder.itemView.setOnClickListener {
                 val intent = Intent(this@HouseDetailActivity, RoomDetailActivity::class.java)
                 intent.putExtra(ROOM_ID, room.id)
@@ -128,6 +140,57 @@ class HouseDetailActivity : AppCompatActivity() {
                     ui.lblRoomStatus.text = "${items.size} room(s)"
                 }
             }
+        }
+    }
+
+    private fun duplicateRoom(room: Room) {
+        val newRoom = Room(
+            name = "${room.name} (Copy)",
+            type = room.type,
+            houseId = room.houseId
+        )
+        roomsCollection.add(newRoom).addOnSuccessListener { newRoomRef ->
+            val newRoomId = newRoomRef.id
+
+            db.collection("windows").whereEqualTo("roomId", room.id).get()
+                .addOnSuccessListener { windows ->
+                    for (doc in windows) {
+                        val window = doc.toObject(WindowSpace::class.java)
+                        window.id = null
+                        val newWindow = WindowSpace(
+                            name = window.name,
+                            widthMm = window.widthMm,
+                            heightMm = window.heightMm,
+                            roomId = newRoomId,
+                            productId = window.productId,
+                            productName = window.productName,
+                            colorVariant = window.colorVariant,
+                            panelCount = window.panelCount,
+                            pricePerM2 = window.pricePerM2
+                        )
+                        db.collection("windows").add(newWindow)
+                    }
+                }
+
+            db.collection("floors").whereEqualTo("roomId", room.id).get()
+                .addOnSuccessListener { floors ->
+                    for (doc in floors) {
+                        val floor = doc.toObject(FloorSpace::class.java)
+                        val newFloor = FloorSpace(
+                            name = floor.name,
+                            widthMm = floor.widthMm,
+                            depthMm = floor.depthMm,
+                            roomId = newRoomId,
+                            productId = floor.productId,
+                            productName = floor.productName,
+                            colorVariant = floor.colorVariant,
+                            pricePerM2 = floor.pricePerM2
+                        )
+                        db.collection("floors").add(newFloor)
+                    }
+                }
+
+            loadRooms()
         }
     }
 
