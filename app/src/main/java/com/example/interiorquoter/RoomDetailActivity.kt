@@ -1,5 +1,6 @@
 package com.example.interiorquoter
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -34,7 +35,9 @@ class RoomDetailActivity : AppCompatActivity() {
         }
 
         ui.btnAddFloor.setOnClickListener {
-            // Wire up later
+            val intent = Intent(this, AddEditFloorActivity::class.java)
+            intent.putExtra(ROOM_ID, roomId)
+            startActivity(intent)
         }
 
         loadWindows()
