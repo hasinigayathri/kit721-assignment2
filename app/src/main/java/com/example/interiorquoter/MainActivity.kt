@@ -21,6 +21,8 @@ class MainActivity : AppCompatActivity() {
     private val housesCollection get() = db.collection("houses")
     private val items = mutableListOf<House>()
 
+    private val allItems = mutableListOf<House>()
+
     inner class HouseHolder(var ui: MyHouseItemBinding) : RecyclerView.ViewHolder(ui.root)
 
     inner class HouseAdapter(private val houses: MutableList<House>) : RecyclerView.Adapter<HouseHolder>() {
@@ -81,6 +83,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         loadHouses()
+        setupSearch()
     }
 
     override fun onResume() {
@@ -92,10 +95,12 @@ class MainActivity : AppCompatActivity() {
         ui.lblStatus.text = "Loading..."
         housesCollection.get().addOnSuccessListener { result ->
             items.clear()
+            allItems.clear()
             for (doc in result) {
                 val house = doc.toObject(House::class.java)
                 house.id = doc.id
                 items.add(house)
+                allItems.add(house)
             }
             ui.myList.adapter?.notifyDataSetChanged()
             if (items.isEmpty()) {
@@ -110,5 +115,29 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+    }
+    private fun setupSearch() {
+        ui.txtSearch.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                val query = s.toString().trim().lowercase()
+                items.clear()
+                if (query.isEmpty()) {
+                    items.addAll(allItems)
+                } else {
+                    items.addAll(allItems.filter {
+                        it.customerName?.lowercase()?.contains(query) == true ||
+                                it.address?.lowercase()?.contains(query) == true
+                    })
+                }
+                ui.myList.adapter?.notifyDataSetChanged()
+                if (items.isEmpty() && query.isNotEmpty()) {
+                    ui.lblStatus.text = "No results for \"$query\""
+                } else {
+                    ui.lblStatus.text = "${items.size} house(s)"
+                }
+            }
+        })
     }
 }
