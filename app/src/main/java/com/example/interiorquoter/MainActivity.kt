@@ -99,10 +99,16 @@ class MainActivity : AppCompatActivity() {
             }
             ui.myList.adapter?.notifyDataSetChanged()
             if (items.isEmpty()) {
-                ui.lblStatus.text = "No houses yet\nTap '+ Add House' to create your first quote"
+                ui.emptyState.visibility = android.view.View.VISIBLE
+                ui.myList.visibility = android.view.View.GONE
+                ui.lblStatus.text = ""
             } else {
+                ui.emptyState.visibility = android.view.View.GONE
+                ui.myList.visibility = android.view.View.VISIBLE
                 ui.lblStatus.text = "${items.size} house(s)"
             }
         }
+
+
     }
 }

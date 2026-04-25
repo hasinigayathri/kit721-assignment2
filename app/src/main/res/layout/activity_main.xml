@@ -18,27 +18,62 @@
     <EditText
         android:id="@+id/txtSearch"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:ems="10"
-        android:hint="@string/enter_hint"
-        android:inputType="text" />
-
-    <TextView
-        android:id="@+id/lblStatus"
-        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Loading..." />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/myList"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:hint="Add name or address to search"
+        android:inputType="text"
+        android:padding="12dp"
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:drawablePadding="8dp"/>
 
     <Button
         android:id="@+id/btnAddHouse"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="+ Add House" />
+        android:text="+ Add House"
+        android:layout_margin="8dp"/>
+
+    <TextView
+        android:id="@+id/lblStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="Loading..."/>
+
+    <LinearLayout
+        android:id="@+id/emptyState"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_house"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No projects yet"
+            android:textSize="20sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tap &quot;Add House&quot; to create your first quote"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"/>
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/myList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
 
 </LinearLayout>
