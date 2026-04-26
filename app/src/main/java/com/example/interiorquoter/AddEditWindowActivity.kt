@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.example.interiorquoter.databinding.ActivityAddEditWindowBinding
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -37,7 +38,8 @@ class AddEditWindowActivity : AppCompatActivity() {
         val maxWidth: Double,
         val minHeight: Double,
         val maxHeight: Double,
-        val maxPanels: Int
+        val maxPanels: Int,
+        val imageUrl: String = ""
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -202,7 +204,8 @@ class AddEditWindowActivity : AppCompatActivity() {
                         maxWidth = obj.optDouble("max_width", Double.MAX_VALUE),
                         minHeight = obj.optDouble("min_height", 0.0),
                         maxHeight = obj.optDouble("max_height", Double.MAX_VALUE),
-                        maxPanels = obj.optInt("max_panels", 1)
+                        maxPanels = obj.optInt("max_panels", 1),
+                        imageUrl = obj.optString("imageUrl", "")
                     ))
                 }
 
@@ -231,6 +234,10 @@ class AddEditWindowActivity : AppCompatActivity() {
                 colourAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 ui.spinnerColour.adapter = colourAdapter
                 checkConstraints()
+                ui.imgProductPreview.visibility = android.view.View.VISIBLE
+                Glide.with(this@AddEditWindowActivity)
+                    .load(selectedProduct!!.imageUrl)
+                    .into(ui.imgProductPreview)
             }
             override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
         }

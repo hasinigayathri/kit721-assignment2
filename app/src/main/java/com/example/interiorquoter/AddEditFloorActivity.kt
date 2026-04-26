@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.example.interiorquoter.databinding.ActivityAddEditFloorBinding
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -28,7 +29,9 @@ class AddEditFloorActivity : AppCompatActivity() {
         val name: String,
         val pricePerM2: Double,
         val description: String,
-        val colours: List<String>
+        val colours: List<String>,
+        val imageUrl: String = ""
+
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -125,7 +128,8 @@ class AddEditFloorActivity : AppCompatActivity() {
                         name = obj.getString("name"),
                         pricePerM2 = obj.getDouble("price_per_sqm"),
                         description = obj.optString("description", ""),
-                        colours = colours
+                        colours = colours,
+                        imageUrl = obj.optString("imageUrl", "")
                     ))
                 }
 
@@ -153,6 +157,10 @@ class AddEditFloorActivity : AppCompatActivity() {
                 val colourAdapter = ArrayAdapter(this@AddEditFloorActivity, android.R.layout.simple_spinner_item, selectedProduct!!.colours)
                 colourAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 ui.spinnerColour.adapter = colourAdapter
+                ui.imgProductPreview.visibility = android.view.View.VISIBLE
+                Glide.with(this@AddEditFloorActivity)
+                    .load(selectedProduct!!.imageUrl)
+                    .into(ui.imgProductPreview)
             }
             override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
         }

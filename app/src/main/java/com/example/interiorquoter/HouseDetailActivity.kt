@@ -20,6 +20,8 @@ class HouseDetailActivity : AppCompatActivity() {
     private val items = mutableListOf<Room>()
     private var houseId: String? = null
 
+    private var newlyDuplicatedRoomId: String? = null
+
     inner class RoomHolder(var ui: MyRoomItemBinding) : RecyclerView.ViewHolder(ui.root)
 
     inner class RoomAdapter(private val rooms: MutableList<Room>) : RecyclerView.Adapter<RoomHolder>() {
@@ -35,42 +37,53 @@ class HouseDetailActivity : AppCompatActivity() {
             holder.ui.txtRoomName.text = room.name
             holder.ui.txtRoomType.text = room.type
             holder.ui.txtRoomSummary.text = "Tap to view details"
+            if (room.id == newlyDuplicatedRoomId) {
+                holder.ui.lblNew.visibility = android.view.View.VISIBLE
+                holder.itemView.setBackgroundColor(getColor(R.color.teal_very_light))
+            } else {
+                holder.ui.lblNew.visibility = android.view.View.GONE
+                holder.itemView.setBackgroundColor(getColor(android.R.color.white))
+            }
 
             holder.ui.btnDeleteRoom.setOnClickListener {
                 AlertDialog.Builder(holder.itemView.context)
                     .setTitle("Delete Room")
                     .setMessage("Are you sure you want to delete ${room.name}? This cannot be undone.")
                     .setPositiveButton("Delete") { _, _ ->
+                        val currentPosition = holder.adapterPosition
+                        if (currentPosition == RecyclerView.NO_ID.toInt()) return@setPositiveButton
+
                         // Delete all windows for this room
                         db.collection("windows").whereEqualTo("roomId", room.id).get()
                             .addOnSuccessListener { windows ->
-                                for (doc in windows) {
-                                    doc.reference.delete()
-                                }
+                                for (doc in windows) doc.reference.delete()
                             }
 
                         // Delete all floors for this room
                         db.collection("floors").whereEqualTo("roomId", room.id).get()
                             .addOnSuccessListener { floors ->
-                                for (doc in floors) {
-                                    doc.reference.delete()
-                                }
+                                for (doc in floors) doc.reference.delete()
                             }
 
                         // Delete the room itself
                         roomsCollection.document(room.id!!).delete()
-                        rooms.removeAt(position)
-                        notifyItemRemoved(position)
+                        rooms.removeAt(currentPosition)
+                        notifyItemRemoved(currentPosition)
                         this@HouseDetailActivity.ui.btnGenerateQuote.isEnabled = rooms.isNotEmpty()
                         if (rooms.isEmpty()) {
-                            this@HouseDetailActivity.ui.lblRoomStatus.text = "No rooms added yet\nTap '+ Add Room' to add your first room"
-                            this@HouseDetailActivity.ui.lblDuplicateHint.visibility = if (rooms.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
+                            this@HouseDetailActivity.ui.emptyRoomState.visibility = android.view.View.VISIBLE
+                            this@HouseDetailActivity.ui.lblRoomStatus.visibility = android.view.View.GONE
+                            this@HouseDetailActivity.ui.lblDuplicateHint.visibility = android.view.View.GONE
                         } else {
                             this@HouseDetailActivity.ui.lblRoomStatus.text = "${rooms.size} room(s)"
                         }
                     }
                     .setNegativeButton("Cancel", null)
                     .show()
+                    .also { dialog ->
+                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                            .setTextColor(android.graphics.Color.RED)
+                    }
             }
             holder.ui.btnEditRoom.setOnClickListener {
                 val intent = Intent(this@HouseDetailActivity, AddEditRoomActivity::class.java)
@@ -88,6 +101,10 @@ class HouseDetailActivity : AppCompatActivity() {
                     }
                     .setNegativeButton("Cancel", null)
                     .show()
+                    .also { dialog ->
+                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                            .setTextColor(android.graphics.Color.RED)
+                    }
                 true
             }
             holder.itemView.setOnClickListener {
@@ -155,9 +172,14 @@ class HouseDetailActivity : AppCompatActivity() {
                 ui.lblDuplicateHint.visibility = if (items.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
                 ui.btnGenerateQuote.isEnabled = items.isNotEmpty()
                 if (items.isEmpty()) {
-                    ui.lblRoomStatus.text = "No rooms added yet\nTap '+ Add Room' to add your first room"
+                    ui.emptyRoomState.visibility = android.view.View.VISIBLE
+                    ui.lblRoomStatus.visibility = android.view.View.GONE
+                    ui.lblDuplicateHint.visibility = android.view.View.GONE
                 } else {
+                    ui.emptyRoomState.visibility = android.view.View.GONE
+                    ui.lblRoomStatus.visibility = android.view.View.VISIBLE
                     ui.lblRoomStatus.text = "${items.size} room(s)"
+                    ui.lblDuplicateHint.visibility = android.view.View.VISIBLE
                 }
             }
         }
@@ -210,6 +232,7 @@ class HouseDetailActivity : AppCompatActivity() {
                     }
                 }
 
+            newlyDuplicatedRoomId = newRoomRef.id
             loadRooms()
         }
     }

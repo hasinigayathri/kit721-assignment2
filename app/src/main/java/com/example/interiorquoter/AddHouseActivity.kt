@@ -40,6 +40,7 @@ class AddHouseActivity : AppCompatActivity() {
         }
 
         ui.btnSave.setOnClickListener {
+            ui.btnSave.isEnabled = false
             val name = ui.etName.text.toString().trim()
             val address = ui.etAddress.text.toString().trim()
             val suburb = ui.etSuburb.text.toString().trim()
@@ -47,10 +48,22 @@ class AddHouseActivity : AppCompatActivity() {
 
             if (name.isEmpty()) {
                 ui.etName.error = "Name is required"
+                ui.btnSave.isEnabled = true
                 return@setOnClickListener
             }
             if (address.isEmpty()) {
                 ui.etAddress.error = "Address is required"
+                ui.btnSave.isEnabled = true
+                return@setOnClickListener
+            }
+            if (suburb.isEmpty()) {
+                ui.etSuburb.error = "Suburb is required"
+                ui.btnSave.isEnabled = true
+                return@setOnClickListener
+            }
+            if (phone.isNotEmpty() && !phone.matches(Regex("^04[0-9]{8}$"))) {
+                ui.etPhone.error = "Please enter a valid Australian mobile number (04XXXXXXXX)"
+                ui.btnSave.isEnabled = true
                 return@setOnClickListener
             }
 
