@@ -12,6 +12,7 @@ import com.example.interiorquoter.databinding.MyWindowItemBinding
 import com.example.interiorquoter.databinding.MyFloorItemBinding
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.bumptech.glide.Glide
 
 class RoomDetailActivity : AppCompatActivity() {
 
@@ -111,6 +112,12 @@ class RoomDetailActivity : AppCompatActivity() {
         roomId = intent.getStringExtra(ROOM_ID)
         houseId = intent.getStringExtra(HOUSE_ID)
         title = intent.getStringExtra("ROOM_NAME") ?: "Room Detail"
+
+        val photoUrl = intent.getStringExtra("PHOTO_URL")
+        if (!photoUrl.isNullOrEmpty()) {
+            ui.imgRoomPhoto.visibility = android.view.View.VISIBLE
+            Glide.with(this).load(java.io.File(photoUrl)).into(ui.imgRoomPhoto)
+        }
 
         ui.btnAddWindow.setOnClickListener {
             val intent = Intent(this, AddEditWindowActivity::class.java)

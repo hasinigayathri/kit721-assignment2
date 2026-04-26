@@ -1,10 +1,16 @@
 package com.example.interiorquoter
 
+import android.net.Uri
 import android.os.Bundle
+import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.example.interiorquoter.databinding.ActivityAddEditRoomBinding
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.io.File
+import java.io.FileOutputStream
 
 const val ROOM_ID = "ROOM_ID"
 
@@ -15,6 +21,16 @@ class AddEditRoomActivity : AppCompatActivity() {
     private val roomsCollection get() = db.collection("rooms")
     private var roomId: String? = null
     private var houseId: String? = null
+    private var selectedPhotoUri: Uri? = null
+    private var existingPhotoUrl: String? = null
+
+    private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let {
+            selectedPhotoUri = it
+            ui.imgRoomPhoto.visibility = View.VISIBLE
+            Glide.with(this).load(it).into(ui.imgRoomPhoto)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,10 +49,19 @@ class AddEditRoomActivity : AppCompatActivity() {
                 room?.let {
                     ui.etRoomName.setText(it.name)
                     ui.etRoomType.setText(it.type)
+                    if (!it.photoUrl.isNullOrEmpty()) {
+                        existingPhotoUrl = it.photoUrl
+                        ui.imgRoomPhoto.visibility = View.VISIBLE
+                        Glide.with(this).load(File(it.photoUrl)).into(ui.imgRoomPhoto)
+                    }
                 }
             }
         } else {
             title = "Add Room"
+        }
+
+        ui.btnSelectPhoto.setOnClickListener {
+            pickImage.launch("image/*")
         }
 
         ui.btnSaveRoom.setOnClickListener {
@@ -48,20 +73,41 @@ class AddEditRoomActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            val room = Room(
-                name = name,
-                type = type,
-                houseId = houseId ?: ""
-            )
-
-            if (roomId != null) {
-                roomsCollection.document(roomId!!).set(room).addOnSuccessListener {
-                    finish()
-                }
+            if (selectedPhotoUri != null) {
+                val localPath = saveImageLocally(selectedPhotoUri!!)
+                saveRoom(name, type, localPath)
             } else {
-                roomsCollection.add(room).addOnSuccessListener {
-                    finish()
-                }
+                saveRoom(name, type, existingPhotoUrl)
+            }
+        }
+    }
+
+    private fun saveImageLocally(uri: Uri): String {
+        val fileName = "room_${System.currentTimeMillis()}.jpg"
+        val file = File(filesDir, fileName)
+        contentResolver.openInputStream(uri)?.use { input ->
+            FileOutputStream(file).use { output ->
+                input.copyTo(output)
+            }
+        }
+        return file.absolutePath
+    }
+
+    private fun saveRoom(name: String, type: String, photoUrl: String?) {
+        val room = Room(
+            name = name,
+            type = type,
+            houseId = houseId ?: "",
+            photoUrl = photoUrl
+        )
+
+        if (roomId != null) {
+            roomsCollection.document(roomId!!).set(room).addOnSuccessListener {
+                finish()
+            }
+        } else {
+            roomsCollection.add(room).addOnSuccessListener {
+                finish()
             }
         }
     }

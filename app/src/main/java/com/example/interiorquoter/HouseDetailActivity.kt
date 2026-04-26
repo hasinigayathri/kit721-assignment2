@@ -77,6 +77,7 @@ class HouseDetailActivity : AppCompatActivity() {
                 intent.putExtra(ROOM_ID, room.id)
                 intent.putExtra(HOUSE_ID, houseId)
                 intent.putExtra("ROOM_NAME", room.name)
+                intent.putExtra("PHOTO_URL", room.photoUrl)
                 startActivity(intent)
             }
         }
