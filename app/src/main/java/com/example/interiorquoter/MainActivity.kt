@@ -44,11 +44,33 @@ class MainActivity : AppCompatActivity() {
                     .setTitle("Delete Project")
                     .setMessage("Are you sure you want to delete ${house.customerName}? This cannot be undone.")
                     .setPositiveButton("Delete") { _, _ ->
+                        // Delete all rooms and their windows/floors
+                        db.collection("rooms").whereEqualTo("houseId", house.id).get()
+                            .addOnSuccessListener { rooms ->
+                                for (roomDoc in rooms) {
+                                    val roomId = roomDoc.id
+                                    // Delete windows for this room
+                                    db.collection("windows").whereEqualTo("roomId", roomId).get()
+                                        .addOnSuccessListener { windows ->
+                                            for (doc in windows) doc.reference.delete()
+                                        }
+                                    // Delete floors for this room
+                                    db.collection("floors").whereEqualTo("roomId", roomId).get()
+                                        .addOnSuccessListener { floors ->
+                                            for (doc in floors) doc.reference.delete()
+                                        }
+                                    // Delete the room
+                                    roomDoc.reference.delete()
+                                }
+                            }
+                        // Delete the house
                         housesCollection.document(house.id!!).delete()
                         houses.removeAt(position)
                         notifyItemRemoved(position)
                         if (houses.isEmpty()) {
-                            this@MainActivity.ui.lblStatus.text = "No houses yet\nTap '+ Add House' to create your first quote"
+                            this@MainActivity.ui.lblStatus.text = ""
+                            this@MainActivity.ui.emptyState.visibility = android.view.View.VISIBLE
+                            this@MainActivity.ui.myList.visibility = android.view.View.GONE
                         } else {
                             this@MainActivity.ui.lblStatus.text = "${houses.size} house(s)"
                         }

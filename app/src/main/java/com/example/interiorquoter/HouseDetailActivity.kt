@@ -41,14 +41,31 @@ class HouseDetailActivity : AppCompatActivity() {
                     .setTitle("Delete Room")
                     .setMessage("Are you sure you want to delete ${room.name}? This cannot be undone.")
                     .setPositiveButton("Delete") { _, _ ->
+                        // Delete all windows for this room
+                        db.collection("windows").whereEqualTo("roomId", room.id).get()
+                            .addOnSuccessListener { windows ->
+                                for (doc in windows) {
+                                    doc.reference.delete()
+                                }
+                            }
+
+                        // Delete all floors for this room
+                        db.collection("floors").whereEqualTo("roomId", room.id).get()
+                            .addOnSuccessListener { floors ->
+                                for (doc in floors) {
+                                    doc.reference.delete()
+                                }
+                            }
+
+                        // Delete the room itself
                         roomsCollection.document(room.id!!).delete()
                         rooms.removeAt(position)
                         notifyItemRemoved(position)
-                        ui.btnGenerateQuote.isEnabled = rooms.isNotEmpty()
+                        this@HouseDetailActivity.ui.btnGenerateQuote.isEnabled = rooms.isNotEmpty()
                         if (rooms.isEmpty()) {
-                            ui.lblRoomStatus.text = "No rooms added yet\nTap '+ Add Room' to add your first room"
+                            this@HouseDetailActivity.ui.lblRoomStatus.text = "No rooms added yet\nTap '+ Add Room' to add your first room"
                         } else {
-                            ui.lblRoomStatus.text = "${rooms.size} room(s)"
+                            this@HouseDetailActivity.ui.lblRoomStatus.text = "${rooms.size} room(s)"
                         }
                     }
                     .setNegativeButton("Cancel", null)
