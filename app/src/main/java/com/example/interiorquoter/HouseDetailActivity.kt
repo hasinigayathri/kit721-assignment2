@@ -82,6 +82,8 @@ class HouseDetailActivity : AppCompatActivity() {
                     .show()
                     .also { dialog ->
                         dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                            .setTextColor(getColor(R.color.teal_primary))
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                             .setTextColor(android.graphics.Color.RED)
                     }
             }

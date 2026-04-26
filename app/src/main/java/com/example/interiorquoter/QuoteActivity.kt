@@ -18,6 +18,8 @@ class QuoteActivity : AppCompatActivity() {
     private var houseId: String? = null
     private var houseName: String? = null
 
+    private var currentRoom = ""
+
     data class QuoteItem(
         val type: String, // "room_header", "space_item", "room_total"
         val label: String,
@@ -60,26 +62,33 @@ class QuoteActivity : AppCompatActivity() {
                     return@addOnSuccessListener
                 }
 
+                val allRoomData = mutableListOf<Pair<String, MutableList<QuoteItem>>>()
                 var roomsProcessed = 0
 
                 for (roomDoc in rooms) {
                     val room = roomDoc.toObject(Room::class.java) ?: continue
                     room.id = roomDoc.id
+                    val roomName = room.name ?: "Room"
                     val roomItems = mutableListOf<QuoteItem>()
-                    var roomTotal = 200.0 // labour cost per room
-
-                    quoteItems.add(QuoteItem("room_header", room.name ?: "Room"))
-
+                    var roomTotal = 200.0
                     var windowsDone = false
                     var floorsDone = false
 
+                    val roomEntry = Pair(roomName, roomItems)
+                    allRoomData.add(roomEntry)
+
                     fun checkRoomDone() {
                         if (!windowsDone || !floorsDone) return
-                        roomItems.forEach { quoteItems.add(it) }
-                        quoteItems.add(QuoteItem("room_total", "Room Total", roomTotal))
+                        roomItems.add(0, QuoteItem("room_header", roomName))
+                        roomItems.add(QuoteItem("room_total", "Room Total", roomTotal))
                         grandTotal += roomTotal
                         roomsProcessed++
+
                         if (roomsProcessed == rooms.size) {
+                            quoteItems.clear()
+                            for (entry in allRoomData) {
+                                quoteItems.addAll(entry.second)
+                            }
                             ui.quoteList.adapter = QuoteAdapter(quoteItems)
                             ui.txtGrandTotal.text = "Total Quote: $${"%.2f".format(grandTotal)}"
                         }
@@ -153,16 +162,15 @@ class QuoteActivity : AppCompatActivity() {
 
     private fun shareQuote() {
         val sb = StringBuilder()
-        sb.appendLine("Quote Summary — $houseName")
-        sb.appendLine("=".repeat(30))
+        sb.appendLine("House,Room,Item,Product,Colour,Cost")
         for (item in quoteItems) {
             when (item.type) {
-                "room_header" -> sb.appendLine("\n${item.label}")
-                "space_item" -> sb.appendLine("  ${item.label} — $${"%.2f".format(item.cost)}")
-                "room_total" -> sb.appendLine("  Room Total: $${"%.2f".format(item.cost)}")
+                "room_header" -> currentRoom = item.label
+                "space_item" -> sb.appendLine("${houseName},${currentRoom},${item.label},${"%.2f".format(item.cost)}")
+                "room_total" -> sb.appendLine("${houseName},${currentRoom},Room Total,,,${item.cost}")
             }
         }
-        sb.appendLine("\nGrand Total: $${"%.2f".format(grandTotal)}")
+        sb.appendLine("${houseName},,,Grand Total,,,${grandTotal}")
 
         val shareIntent = Intent(Intent.ACTION_SEND)
         shareIntent.type = "text/plain"

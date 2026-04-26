@@ -131,6 +131,13 @@ class RoomDetailActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        ui.btnGenerateQuote.setOnClickListener {
+            val intent = Intent(this, QuoteActivity::class.java)
+            intent.putExtra(HOUSE_ID, houseId)
+            intent.putExtra("HOUSE_NAME", title.toString())
+            startActivity(intent)
+        }
+
         loadWindows()
         loadFloors()
     }
