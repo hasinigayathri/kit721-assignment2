@@ -64,6 +64,7 @@ class HouseDetailActivity : AppCompatActivity() {
                         this@HouseDetailActivity.ui.btnGenerateQuote.isEnabled = rooms.isNotEmpty()
                         if (rooms.isEmpty()) {
                             this@HouseDetailActivity.ui.lblRoomStatus.text = "No rooms added yet\nTap '+ Add Room' to add your first room"
+                            this@HouseDetailActivity.ui.lblDuplicateHint.visibility = if (rooms.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
                         } else {
                             this@HouseDetailActivity.ui.lblRoomStatus.text = "${rooms.size} room(s)"
                         }
@@ -151,6 +152,7 @@ class HouseDetailActivity : AppCompatActivity() {
                 }
                 ui.roomList.layoutManager = LinearLayoutManager(this)
                 ui.roomList.adapter = RoomAdapter(items)
+                ui.lblDuplicateHint.visibility = if (items.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
                 ui.btnGenerateQuote.isEnabled = items.isNotEmpty()
                 if (items.isEmpty()) {
                     ui.lblRoomStatus.text = "No rooms added yet\nTap '+ Add Room' to add your first room"

@@ -37,6 +37,16 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/lblDuplicateHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="8dp"
+        android:text="💡 Long press any room to duplicate it!"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
